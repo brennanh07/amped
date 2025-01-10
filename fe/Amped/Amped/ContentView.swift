@@ -19,7 +19,6 @@ struct OnboardingView: View {
                 .padding(.bottom, -12)
             Text("Amped")
                 .font(.system(size: 64, weight: .bold, design: .default))
-                .foregroundColor(Color.black)
             Text("Supercharge Your Training")
                 .font(.system(size: 24, weight: .bold, design: .default))
                 .padding(.bottom)
