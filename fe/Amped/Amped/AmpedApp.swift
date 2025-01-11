@@ -25,7 +25,7 @@ struct AmpedApp: App {
 
     var body: some Scene {
         WindowGroup {
-            OnboardingView()
+            SignUpView()
         }
         .modelContainer(sharedModelContainer)
     }

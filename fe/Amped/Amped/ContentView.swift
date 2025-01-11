@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct OnboardingView: View {
+struct SignUpView: View {
     @State private var name: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
@@ -97,6 +97,6 @@ private func signUp() {
 }
 
 #Preview {
-    OnboardingView()
+    SignUpView()
 }
 
