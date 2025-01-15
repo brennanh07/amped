@@ -4,24 +4,22 @@
 //
 //  Created by Brennan Humphrey on 12/27/24.
 //
-//  Description: Main sign-up screen that handles user registration.
-//  Presents email/password form and social authentication options.
-//
-//  Key Components:
-//  - SignUpHeaderView: Displays the app branding
-//  - SignUpFormView: Handles email/password input
-//  - SocialAuthView: Manages third-party authentication
 
 import SwiftUI
 
 /**
- A view that presents the complete user registration interface
+ Main sign-up screen that handles user registration flow
  
  This view coordinates the entire sign-up experience by combining:
  - App branding and message
  - Email/password registration form
  - Social authentication options (Google, Apple)
  - Input validation
+ 
+ ## Key Components
+ - `SignUpHeaderView`: Displays the app branding
+ - `SignUpFormView`: Handles email/password input
+ - `SocialAuthView`: Manages third-party authentication
  
  ## Usage
  ```swift
