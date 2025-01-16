@@ -30,13 +30,13 @@ struct SignUpFormView: View {
         VStack (spacing: 10) {
             SignUpTextField(text: $email, prompt: "Email")
                 .textContentType(.emailAddress)
-                // TODO: Add accessibility functionality
+                .accessibilityLabel(Text("Email Input"))
             SignUpSecureField(text: $password, prompt: "Password")
                 .textContentType(.newPassword)
-                // TODO: Add accessibility functionality
+                .accessibilityLabel(Text("Password Input"))
             SignUpSecureField(text: $confirmPassword, prompt: "Confirm Password")
                 .textContentType(.newPassword)
-                // TODO: Add accessibility functionality
+                .accessibilityLabel(Text("Password Confirmation Input"))
             Button(action: onSubmit) {
                 Text("Get Started")
                     .frame(maxWidth: .infinity)
