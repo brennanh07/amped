@@ -57,7 +57,7 @@ final class SignUpViewModel: ObservableObject {
      - Parameter email: The email address to validate
      - Returns: `true` if the email matches the expected format, `false` otherwise
      
-     - Note: This performs format vlaidation only and does not verify if the email actually exists
+     - Note: This performs format validation only and does not verify if the email actually exists
      */
     private func isValidEmailFormat(_ email: String) -> Bool {
         let emailRegex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
