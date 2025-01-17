@@ -34,7 +34,7 @@ final class SignUpViewModel: ObservableObject {
         var message: String {
             switch self {
             case .empty:
-                return "Please enter an emnail address"
+                return "Please enter an email address"
             case .invalidFormat:
                 return "Please enter a valid email address"
             case .alreadyExists:
