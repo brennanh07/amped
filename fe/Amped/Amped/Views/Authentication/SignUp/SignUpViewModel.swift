@@ -24,12 +24,13 @@ final class SignUpViewModel: ObservableObject {
     @Published var password: String = ""
     @Published var confirmPassword: String = ""
     @Published var emailError: EmailValidationError?
+    @Published var passwordError: PasswordValidationError?
     
     enum EmailValidationError: Error {
         case empty
         case invalidFormat
         case alreadyExists
-        case unknownError
+        case unknown
         
         var message: String {
             switch self {
@@ -39,8 +40,40 @@ final class SignUpViewModel: ObservableObject {
                 return "Please enter a valid email address"
             case .alreadyExists:
                 return "An account with this email address already exists"
-            case .unknownError:
+            case .unknown:
                 return "An unknown error occurred with your email address"
+            }
+        }
+    }
+    
+    enum PasswordValidationError: Error {
+        case empty
+        case tooShort
+        case missingLowercase
+        case missingUppercase
+        case missingNumbers
+        case missingSpecialCharacters
+        case confirmationMismatch
+        case unknown
+        
+        var message: String {
+            switch self {
+            case .empty:
+                return "Please enter a password"
+            case .tooShort:
+                return "Password must be at least 12 characters long"
+            case .missingLowercase:
+                return "Password must have at least one lowercase letter"
+            case .missingUppercase:
+                return "Password must have at least one uppercase letter"
+            case .missingNumbers:
+                return "Passwors must have at least one number"
+            case .missingSpecialCharacters:
+                return "Password must have at least one special character"
+            case .confirmationMismatch:
+                return "Passwords do not match"
+            case .unknown:
+                return "An unknown error has occurred with your password"
             }
         }
     }
@@ -91,32 +124,103 @@ final class SignUpViewModel: ObservableObject {
         // TODO: implement check for already existing email address
     }
     
+    
+    /**
+     Validates a password format against a standard secure password format pattern.
+     
+     This validation checks for:
+     - At least eight characters
+     - At least one uppercase letter
+     - At least one lowercase letter
+     - At least one number
+     - At least one special character
+     
+     - Parameter password: The password string to validate
+     
+     - Returns: `true` if the password matches the expected format, `false` otherwise
+     */
+    private func isValidPasswordFormat(_ password: String) -> Bool {
+        let passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$"
+        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
+        return passwordPredicate.evaluate(with: password)
+    }
+    
+    /**
+     Validates password requirements and confirms passwords match.
+     
+     - Parameters:
+        - password: The password to validate
+        - confirmPassword: The confirmation password to check against
+     
+     - Throws: `PasswordValidationError.empty` if password string is empty
+               `PasswordValidationError.tooShort` if password string is not long enough
+               `PasswordValidationError.missingUppercase` if password string does not contain at least one uppercase letter
+               `PasswordValidationError.missingLowerCase` if password string does not contain at least one lowercase le
+               `PasswordValidationError.missingNumbers` if password string does not contain at least one number
+               `PasswordValidationError.missingSpecialCharacters` if password string does not contain at least one special character
+     */
+    private func validatePassword(_ password: String) throws {
+        guard (!password.isEmpty) else {
+            throw PasswordValidationError.empty
+        }
+        
+        guard (password.count >= 8) else {
+            throw PasswordValidationError.tooShort
+        }
+        
+        guard (password.contains(where: { $0.isUppercase })) else {
+            throw PasswordValidationError.missingUppercase
+        }
+        
+        guard (password.contains(where: { $0.isLowercase })) else {
+            throw PasswordValidationError.missingLowercase
+        }
+        
+        guard (password.contains(where: { $0.isNumber })) else {
+            throw PasswordValidationError.missingNumbers
+        }
+        
+        let specialCharacters = "!@#$%^&*(),.?\":{}|<>"
+        guard (password.contains(where: { specialCharacters.contains($0) })) else {
+            throw PasswordValidationError.missingSpecialCharacters
+        }
+    }
+
     /**
      Attemps to register a new user with email and password
      */
     func signUp() {
-        // TODO: Implement email/password signup
+        // Reset state
+        emailError = nil
+        passwordError = nil
         
         do {
             try validateEmail(email)
+            try validatePassword(password)
         } catch let error as EmailValidationError {
             self.emailError = error
+            return
+        } catch let error as PasswordValidationError {
+            self.passwordError = error
+            return
         } catch {
-            self.emailError = .unknownError
+            return
         }
+        
+        // TODO: Implement email/password signup
     }
     
     /**
      Initiates Google sign-in authentication flow
      */
     func googleSignUp() {
-        // TODO: Implement email/password signup with Google
+        // TODO: Implement Google signup
     }
     
     /**
      Initiates Apple sign-in authentication flow
      */
     func appleSignUp() {
-        // TODO: Implement email/password signup with Apple
+        // TODO: Implement Apple signup
     }
 }

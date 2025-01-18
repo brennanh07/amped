@@ -114,7 +114,7 @@ final class SignUpViewModelTests: XCTestCase {
             signUpViewModel.email = email
             signUpViewModel.signUp()
             
-            // Then: No validation errors should be present
+            // Then: No email validation errors should be present
             XCTAssertNil(signUpViewModel.emailError, "\(email) is not a valid email")
         }
         
@@ -199,7 +199,7 @@ final class SignUpViewModelTests: XCTestCase {
             signUpViewModel.signUp()
             
             // Then: Should revceive invalid format error
-            XCTAssertEqual(signUpViewModel.emailError, .invalidFormat)
+            XCTAssertEqual(signUpViewModel.emailError, .isInvalidFormat)
             XCTAssertEqual(signUpViewModel.emailError?.message, "Please enter a valid email address")
         }
         
@@ -226,7 +226,7 @@ final class SignUpViewModelTests: XCTestCase {
         signUpViewModel.signUp()
         
         // Then: Should receive empty email error
-        XCTAssertEqual(signUpViewModel.emailError, .empty)
+        XCTAssertEqual(signUpViewModel.emailError, .isEmpty)
         XCTAssertEqual(signUpViewModel.emailError?.message, "Please enter an email address")
     }
 }
