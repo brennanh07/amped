@@ -12,24 +12,24 @@ enum SocialButtonStyle {
     case google
     case apple
     
-    var backgroundColor: Color {
+    func backgroundColor(_ colorScheme: ColorScheme) -> Color {
         switch self {
         case .google:
             return .white
         case .apple:
-            return .black
+            return colorScheme == .dark ? .white : .black
         }
     }
     
-    var textColor: Color {
+    func textColor(_ colorScheme: ColorScheme) -> Color {
         switch self {
         case .google:
             return .black
         case .apple:
-            return .white
+            return colorScheme == .dark ? .black : .white
         }
     }
-    
+
     var outline: (color: Color, width: CGFloat) {
         switch self {
         case .google:
@@ -38,5 +38,5 @@ enum SocialButtonStyle {
             return (color: .black, width: 1)
         }
     }
-        
+    
 }
