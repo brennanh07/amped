@@ -8,23 +8,39 @@
 import Foundation
 
 /**
-    Manages the state and business logic for the sign-up process
+ Manages the state and business logic for the sign-up process
  
-     This view model handles:
-     - Form data management
-     - Input validation
-     - Authentication service interaction
-     - Error handling
-     
-     - Important: Requires proper configuration of authentication services
+ This view model handles:
+ - Form data management
+ - Input validation
+ - Authentication service interaction
+ - Error handling
+ 
+ - Important: Requires proper configuration of authentication services
  */
 final class SignUpViewModel: ObservableObject {
     
-    @Published var email: String = ""
-    @Published var password: String = ""
-    @Published var confirmPassword: String = ""
+    @Published var email: String = "" {
+        didSet {
+            validateForm()
+        }
+    }
+    
+    @Published var password: String = "" {
+        didSet {
+            validateForm()
+        }
+    }
+    
+    @Published var confirmPassword: String = "" {
+        didSet {
+            validateForm()
+        }
+    }
+    
     @Published var emailError: EmailValidationError?
     @Published var passwordError: PasswordValidationError?
+    @Published var isFormValid: Bool = false
     
     enum EmailValidationError: Error {
         case empty
@@ -93,7 +109,9 @@ final class SignUpViewModel: ObservableObject {
      - Note: This performs format validation only and does not verify if the email actually exists
      */
     private func isValidEmailFormat(_ email: String) -> Bool {
-        let emailRegex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,64}$"
+        let emailRegex = #"""
+            ^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]{1,64}(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]{1,64})*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.){1,127}[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$
+            """#
         let emailPredicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
         return emailPredicate.evaluate(with: email)
     }
@@ -109,8 +127,8 @@ final class SignUpViewModel: ObservableObject {
      - Parameter email: The email address string to validate
      
      - Throws: `EmailValidationError.empty` if the email string is empty
-               `EmailValidationError.invalidFormat` if the email string format is invalid
-               `EmailValidationError.alreadyExists` if the email is already connected to an existing account
+     `EmailValidationError.invalidFormat` if the email string format is invalid
+     `EmailValidationError.alreadyExists` if the email is already connected to an existing account
      */
     private func validateEmail(_ email: String) throws {
         guard (!email.isEmpty) else {
@@ -124,42 +142,21 @@ final class SignUpViewModel: ObservableObject {
         // TODO: implement check for already existing email address
     }
     
-    
-    /**
-     Validates a password format against a standard secure password format pattern.
-     
-     This validation checks for:
-     - At least eight characters
-     - At least one uppercase letter
-     - At least one lowercase letter
-     - At least one number
-     - At least one special character
-     
-     - Parameter password: The password string to validate
-     
-     - Returns: `true` if the password matches the expected format, `false` otherwise
-     */
-    private func isValidPasswordFormat(_ password: String) -> Bool {
-        let passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$"
-        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
-        return passwordPredicate.evaluate(with: password)
-    }
-    
     /**
      Validates password requirements and confirms passwords match.
      
      - Parameters:
-        - password: The password to validate
-        - confirmPassword: The confirmation password to check against
+     - password: The password to validate
+     - confirmPassword: The confirmation password to check against
      
      - Throws: `PasswordValidationError.empty` if password string is empty
-               `PasswordValidationError.tooShort` if password string is not long enough
-               `PasswordValidationError.missingUppercase` if password string does not contain at least one uppercase letter
-               `PasswordValidationError.missingLowerCase` if password string does not contain at least one lowercase le
-               `PasswordValidationError.missingNumbers` if password string does not contain at least one number
-               `PasswordValidationError.missingSpecialCharacters` if password string does not contain at least one special character
+     `PasswordValidationError.tooShort` if password string is not long enough
+     `PasswordValidationError.missingUppercase` if password string does not contain at least one uppercase letter
+     `PasswordValidationError.missingLowerCase` if password string does not contain at least one lowercase le
+     `PasswordValidationError.missingNumbers` if password string does not contain at least one number
+     `PasswordValidationError.missingSpecialCharacters` if password string does not contain at least one special character
      */
-    private func validatePassword(_ password: String) throws {
+    private func validatePassword(_ password: String, _ confirmPassword: String) throws {
         guard (!password.isEmpty) else {
             throw PasswordValidationError.empty
         }
@@ -184,30 +181,63 @@ final class SignUpViewModel: ObservableObject {
         guard (password.contains(where: { specialCharacters.contains($0) })) else {
             throw PasswordValidationError.missingSpecialCharacters
         }
+        
+        guard (password == confirmPassword) else {
+            throw PasswordValidationError.confirmationMismatch
+        }
     }
-
+    
+    /**
+     Attempts to validate the signup form
+     */
+    ///
+    private func validateForm() {
+        // Reset form validity
+        isFormValid = false
+        
+        // Validate email
+        do {
+            try validateEmail(email)
+            emailError = nil
+        }
+        catch let error as EmailValidationError {
+            emailError = error
+            return
+        } catch {
+            emailError = .unknown
+            return
+        }
+        
+        // Validate password
+        do {
+            try validatePassword(password, confirmPassword)
+            passwordError = nil
+        } catch let error as PasswordValidationError {
+            passwordError = error
+            return
+        } catch {
+            passwordError = .unknown
+            return
+        }
+        
+        // If we make it here, that means the email and password are both valid
+        isFormValid = true
+        
+    }
+    
     /**
      Attemps to register a new user with email and password
      */
     func signUp() {
-        // Reset state
-        emailError = nil
-        passwordError = nil
+        // Validate one final time before attempting signup
+        validateForm()
         
-        do {
-            try validateEmail(email)
-            try validatePassword(password)
-        } catch let error as EmailValidationError {
-            self.emailError = error
-            return
-        } catch let error as PasswordValidationError {
-            self.passwordError = error
-            return
-        } catch {
+        guard isFormValid else {
             return
         }
         
         // TODO: Implement email/password signup
+        
     }
     
     /**
