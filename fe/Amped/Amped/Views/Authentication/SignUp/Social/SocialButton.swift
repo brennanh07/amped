@@ -12,6 +12,7 @@ struct SocialButton: View {
     let title: String
     let action: () -> Void
     let style: SocialButtonStyle
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Button(action: action) {
@@ -26,8 +27,8 @@ struct SocialButton: View {
             .padding(.horizontal, 28)
         }
         .buttonStyle(OnboardingButtonStyle(
-            backgroundColor: style.backgroundColor,
-            textColor: style.textColor,
+            backgroundColor: style.backgroundColor(colorScheme),
+            textColor: style.textColor(colorScheme),
             outlineColor: style.outline.color,
             outlineWidth: style.outline.width
         ))

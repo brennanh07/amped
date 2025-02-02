@@ -10,6 +10,7 @@ import SwiftUI
 struct SocialAuthView: View {
     let onGoogleAuth: () -> Void
     let onAppleAuth: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack (spacing: 10) {
@@ -21,7 +22,7 @@ struct SocialAuthView: View {
             )
             
             SocialButton(
-                icon: Image(.appleIcon),
+                icon: colorScheme == .dark ? Image(.appleLogo1) : Image(.appleIcon),
                 title: "Continue with Apple",
                 action: onAppleAuth,
                 style: .apple
