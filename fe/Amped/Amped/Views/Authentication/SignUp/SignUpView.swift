@@ -40,6 +40,8 @@ struct SignUpView: View {
                 email: $viewModel.email,
                 password: $viewModel.password,
                 confirmPassword: $viewModel.confirmPassword,
+                emailError: viewModel.emailError,
+                passwordError: viewModel.passwordError,
                 onSubmit: viewModel.signUp
             )
             orDivider()
